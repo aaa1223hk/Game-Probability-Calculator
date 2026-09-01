@@ -221,7 +221,19 @@
     .status{margin-top:12px;color:#8ea2ca;font-size:13px;min-height:20px}
     .footer{text-align:center;color:#627396;font-size:12px;padding:25px 0 10px}
     .pill{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;background:#17213a;color:#9eb0d6}
-    .note{font-size:13px;color:#91a4cb}
+    .note{font-size:13px;color:#91a4cb}    .friend-ad{
+      margin-top:18px;
+      padding:22px;
+      background:linear-gradient(180deg, rgba(18,26,47,.96), rgba(15,23,42,.96));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      text-align:center;
+    }
+    .friend-ad h2{margin:0 0 5px;font-size:20px}
+    .friend-ad .sub{margin:0 0 16px;color:var(--muted);font-size:14px}
+    .friend-ad-ins{display:block;text-align:center;min-height:100px}
+
     .decision-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
     @media(max-width:1000px){.decision-grid{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:560px){.decision-grid{grid-template-columns:1fr}}
@@ -425,8 +437,24 @@
       </section>
     </main>
 
+    <section class="friend-ad" aria-label="友誼小廣告">
+      <h2>友誼小廣告</h2>
+      <p class="sub">感謝支持這個小工具。</p>
+      <ins class="adsbygoogle friend-ad-ins"
+           data-ad-layout="in-article"
+           data-ad-format="fluid"
+           data-ad-client="ca-pub-5098041229443474"
+           data-ad-slot="8188420665"></ins>
+    </section>
+
     <div class="footer">@歐小龍 2026/9/1 更新</div>
   </div>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5098041229443474"
+     crossorigin="anonymous"></script>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
 
 <script>
 (() => {
