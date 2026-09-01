@@ -109,17 +109,98 @@
     th{color:#a9b9dc;font-weight:700;background:#0d1528}
     tr:last-child td{border-bottom:0}
     td.good{color:var(--success);font-weight:800}
-    .cost-header{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-    .cost-list{display:grid;gap:9px;margin-top:12px}
-    .cost-row{
-      display:grid; grid-template-columns:1fr 110px 88px;
-      gap:8px; align-items:center;
-      background:#0b1325;border:1px solid #253350;border-radius:12px;padding:9px;
+    .section-kicker{
+      display:inline-flex;align-items:center;gap:7px;
+      margin-bottom:5px;color:#7898ff;font-size:11px;font-weight:800;letter-spacing:.14em;
     }
-    @media(max-width:560px){.cost-row{grid-template-columns:1fr 100px 72px}}
+    .section-kicker::before{content:"";width:20px;height:2px;border-radius:99px;background:var(--primary)}
+    .cost-header{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+    .cost-count{
+      display:inline-block;margin-left:7px;padding:4px 8px;border-radius:999px;
+      color:#8ea2ca;background:#17213a;border:1px solid #293a5e;
+      font-size:11px;font-weight:600;vertical-align:middle;
+    }
+    .add-cost-btn{
+      display:inline-flex;align-items:center;gap:6px;white-space:nowrap;padding:12px 16px;
+      border-radius:12px;box-shadow:0 8px 22px rgba(73,211,154,.08);
+    }
+    .add-cost-btn span{font-size:18px;line-height:1}
+    .cost-list-head{
+      display:grid;grid-template-columns:minmax(0,1fr) 110px 88px;gap:8px;
+      margin:20px 9px 7px;padding:0 9px;color:#667ba5;font-size:11px;font-weight:700;letter-spacing:.04em;
+    }
+    .cost-list-head span:nth-child(2){text-align:left}
+    .cost-list-head span:last-child{text-align:center}
+    .cost-list{display:grid;gap:9px;margin-top:0}
+    .cost-row{
+      display:grid;grid-template-columns:minmax(0,1fr) 110px 88px;gap:8px;align-items:center;
+      position:relative;background:linear-gradient(135deg,#0c1528,#0b1325);
+      border:1px solid #273858;border-radius:14px;padding:9px;
+      transition:border-color .16s ease,transform .16s ease,box-shadow .16s ease;
+    }
+    .cost-row:hover{
+      border-color:#3a4f7a;transform:translateY(-1px);box-shadow:0 9px 25px rgba(0,0,0,.14);
+    }
+    .cost-row::before{
+      content:attr(data-cost-index);display:flex;align-items:center;justify-content:center;
+      width:25px;height:25px;position:absolute;left:-10px;top:50%;transform:translateY(-50%);
+      border-radius:8px;background:#182540;border:1px solid #304469;color:#91a4cb;
+      font-size:11px;font-weight:800;box-shadow:0 4px 12px rgba(0,0,0,.22);
+    }
+    .cost-row .cost-name,.cost-row .cost-value{background:#091121;border-color:#2c3c5e;border-radius:10px}
+    .cost-row .cost-name{padding-left:13px}
+    .cost-row .cost-value{font-weight:700}
+    .cost-row .remove-cost{width:100%;color:#b6c4e2;background:#111b30;border-color:#304064}
+    .cost-row .remove-cost:hover{
+      color:#ff9aab;border-color:rgba(255,117,140,.42);background:rgba(255,117,140,.08);
+    }
+    .cost-empty{
+      display:none;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+      margin-top:9px;padding:24px 16px;border:1px dashed #2d3e61;border-radius:14px;
+      background:rgba(9,16,31,.5);color:#7184ab;text-align:center;
+    }
+    .cost-empty-icon{
+      display:grid;place-items:center;width:38px;height:38px;margin-bottom:4px;
+      border-radius:12px;background:#17213a;border:1px solid #304064;color:#8ea2ca;font-size:20px;
+    }
+    .cost-empty strong{color:#a9b9dc;font-size:14px}
+    .cost-empty span{font-size:12px}
     .cost-total{
-      display:flex;justify-content:space-between;align-items:center;
-      margin-top:12px;padding-top:13px;border-top:1px solid #273654;
+      display:grid;grid-template-columns:1fr 1fr;gap:12px;
+      margin-top:18px;padding-top:16px;border-top:1px solid #273654;
+    }
+    .cost-summary-card{
+      min-width:0;padding:15px;border:1px solid #273654;border-radius:14px;
+      background:linear-gradient(180deg,#0d1629,#0b1325);
+    }
+    .cost-summary-card.featured{
+      border-color:#304978;background:linear-gradient(180deg,rgba(24,39,70,.72),#0b1325);
+    }
+    .summary-title{display:flex;align-items:center;gap:10px}
+    .summary-icon{
+      display:grid;place-items:center;flex:0 0 auto;width:34px;height:34px;border-radius:10px;
+      background:#172540;border:1px solid #304469;color:#9eb2e0;font-weight:800;
+    }
+    .summary-title strong{display:block;margin-top:1px;font-size:14px}
+    .cost-breakdown{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+    .cost-breakdown .cost-item{
+      display:inline-flex;align-items:center;gap:7px;max-width:100%;padding:7px 9px;
+      border-radius:9px;background:#091121;border:1px solid #263754;
+    }
+    .cost-breakdown .cost-item .name{
+      color:#91a4cb;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
+    .cost-breakdown .cost-item .value{color:#edf2ff;font-weight:800;font-size:13px;white-space:nowrap}
+    @media(max-width:700px){
+      .cost-header{flex-direction:column}
+      .add-cost-btn{width:100%;justify-content:center}
+      .cost-list-head,.cost-row{grid-template-columns:minmax(0,1fr) 100px 72px}
+      .cost-total{grid-template-columns:1fr}
+    }
+    @media(max-width:560px){
+      .cost-list-head{display:none}
+      .cost-row{grid-template-columns:minmax(0,1fr) 88px 68px;padding:8px}
+      .cost-row::before{display:none}
     }
     .chart-wrap{
       height:430px; border:1px solid #263552; border-radius:14px; background:#0a1122; padding:14px;
@@ -257,23 +338,54 @@
         </div>
       </section>
 
-      <section class="card">
+      <section class="card cost-card">
         <div class="cost-header">
           <div>
-            <h2>④ 成本計算（可 0 項／多項）</h2>
-            <p class="sub">每一列代表「每抽 1 次」會消耗多少；例如：石頭 1、金幣 10。下方會自動換算 90%／95%／99% 目標所需總成本。</p>
+            <div class="section-kicker">COST BREAKDOWN</div>
+            <h2>④ 成本計算 <span class="cost-count">可 0 項／多項</span></h2>
+            <p class="sub">每一列代表「每抽 1 次」會消耗多少。輸入多種資源後，下方會逐項換算目前 n 次，以及 90%／95%／99% 目標所需成本。</p>
           </div>
-          <button class="add" id="addCost">＋ 成本</button>
+          <button class="add add-cost-btn" id="addCost"><span>＋</span> 新增成本</button>
+        </div>
+
+        <div class="cost-list-head">
+          <span>成本項目</span>
+          <span>每抽消耗</span>
+          <span></span>
         </div>
         <div class="cost-list" id="costList"></div>
+
+        <div class="cost-empty" id="costEmpty">
+          <div class="cost-empty-icon">＋</div>
+          <strong>尚未加入成本</strong>
+          <span>點擊「新增成本」開始建立成本明細</span>
+        </div>
+
         <div class="cost-total">
-          <div>
-            <div class="note">每次試驗的總成本（各項相加）</div>
-            <strong id="costPerAttempt">0</strong>
+          <div class="cost-summary-card">
+            <div class="summary-title">
+              <span class="summary-icon">↻</span>
+              <div>
+                <div class="note">每次試驗</div>
+                <strong>單次成本明細</strong>
+              </div>
+            </div>
+            <div id="costPerAttempt" class="cost-breakdown">
+              <span class="pill">未設定成本</span>
+            </div>
           </div>
-          <div style="text-align:right">
-            <div class="note">做目前 n 次的成本</div>
-            <strong id="costForN">0</strong>
+
+          <div class="cost-summary-card featured">
+            <div class="summary-title">
+              <span class="summary-icon">×</span>
+              <div>
+                <div class="note">目前 n 次</div>
+                <strong>累計成本明細</strong>
+              </div>
+            </div>
+            <div id="costForN" class="cost-breakdown">
+              <span class="pill">未設定成本</span>
+            </div>
           </div>
         </div>
       </section>
@@ -390,6 +502,7 @@
     }
 
     const expectedCost = c * n;
+    const costText = formatCostText(n);
     const risk = d > 0 && p+d > 0 ? 100*d/(p+d) : 0;
     $('riskBar').style.width = `${Math.min(100, risk)}%`;
 
@@ -404,10 +517,10 @@
       desc.textContent = `在 ${fmt(n,0)} 次內至少成功一次的理論機率為 ${pct(theoreticalAtLeast(p,n),3)}。`;
     } else if (d === 0){
       title.textContent = '🟡 沒有破壞風險，但有抽取成本';
-      desc.textContent = `做 ${fmt(n,0)} 次需要 ${fmt(expectedCost,2)} 的總成本；是否值得，主要取決於成功帶來的收益。`;
+      desc.textContent = `做 ${fmt(n,0)} 次需要：${costText}；是否值得，主要取決於成功帶來的收益。`;
     } else {
       title.textContent = risk >= 30 ? '🔴 破壞風險偏高，需謹慎嘗試' : '🟡 有破壞風險，建議一起看成本';
-      desc.textContent = `做 ${fmt(n,0)} 次需要 ${fmt(expectedCost,2)} 的總成本；若持續抽到成功或破壞，最終成功機率約 ${pct(p/(p+d),3)}，最終破壞機率約 ${pct(d/(p+d),3)}。`;
+      desc.textContent = `做 ${fmt(n,0)} 次需要：${costText}；若持續抽到成功或破壞，最終成功機率約 ${pct(p/(p+d),3)}，最終破壞機率約 ${pct(d/(p+d),3)}。`;
     }
   }
 
@@ -458,7 +571,14 @@
     const costs = readCosts();
     if (!costs.length) return '<span class="pill">未設定成本</span>';
     if (!Number.isFinite(n)) return '—';
-    return costs.map(c => `${fmt(c.value * n, 2)} ${escapeHtml(c.name)}`).join(' + ');
+    return costs.map(c => `${fmt(c.value * n, 2)} ${escapeHtml(c.name)}`).join('、');
+  }
+
+  function formatCostText(n){
+    const costs = readCosts();
+    if (!costs.length) return '未設定成本';
+    if (!Number.isFinite(n)) return '—';
+    return costs.map(c => `${fmt(c.value * n, 2)} ${escapeHtml(c.name)}`).join('、');
   }
 
   function updateTargetTable(){
@@ -498,7 +618,7 @@
   function costRowTemplate(index, item){
     const name = item?.name ?? `成本 ${index+1}`;
     const value = item?.value ?? 0;
-    return `<div class="cost-row" data-cost-index="${index}">
+    return `<div class="cost-row" data-cost-index="${index+1}">
       <input type="text" class="cost-name" value="${escapeHtml(name)}" placeholder="例如：抽卡券">
       <input type="number" class="cost-value" min="0" step="0.01" value="${value}" placeholder="0">
       <button class="small reset remove-cost" type="button">移除</button>
@@ -516,12 +636,30 @@
     }));
   }
 
+  function renderCostBreakdown(costs, multiplier=1){
+    if (!costs.length){
+      return '<span class="pill">未設定成本</span>';
+    }
+    return costs.map(c => `
+      <span class="cost-item">
+        <span class="name">${escapeHtml(c.name)}</span>
+        <span class="value">${fmt(c.value * multiplier, 2)}</span>
+      </span>
+    `).join('');
+  }
+
   function updateCosts(){
     const costs = readCosts();
     const per = costs.reduce((sum, x) => sum + x.value, 0);
     const n = Math.max(1, parseInt(attempts.value,10) || 1);
-    $('costPerAttempt').textContent = fmt(per,2);
-    $('costForN').textContent = fmt(per * n,2);
+
+    // 畫面逐項呈現；總和 per 仍保留給其他成本判斷使用。
+    $('costPerAttempt').innerHTML = renderCostBreakdown(costs, 1);
+    $('costForN').innerHTML = renderCostBreakdown(costs, n);
+
+    const empty = $('costEmpty');
+    if (empty) empty.style.display = costs.length ? 'none' : 'flex';
+
     updateTargetTable();
   }
 
@@ -742,6 +880,9 @@
     attempts.value=defaults.attempts; runs.value=defaults.runs; seed.value=defaults.seed;
     dangerProb.value=0; dangerProbRange.value=0;
     costList.innerHTML='';
+    $('costPerAttempt').innerHTML='<span class="pill">未設定成本</span>';
+    $('costForN').innerHTML='<span class="pill">未設定成本</span>';
+    $('costEmpty').style.display='flex';
     lastHistogram=[];
     $('status').textContent='已重設。尚未執行模擬。';
     updateAll();
