@@ -141,6 +141,14 @@
     .footer{text-align:center;color:#627396;font-size:12px;padding:25px 0 10px}
     .pill{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;background:#17213a;color:#9eb0d6}
     .note{font-size:13px;color:#91a4cb}
+    .decision-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+    @media(max-width:1000px){.decision-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:560px){.decision-grid{grid-template-columns:1fr}}
+    .decision-banner{margin-top:14px;padding:15px 16px;border-radius:13px;background:#0d1528;border:1px solid #2d3d60}
+    .decision-banner .title{font-size:18px;font-weight:800}
+    .decision-banner .desc{margin-top:4px;color:#9fb0d1;font-size:13px}
+    .risk-meter{margin-top:10px;height:10px;border-radius:999px;background:#1b2944;overflow:hidden}
+    .risk-meter > span{display:block;height:100%;width:0%;background:#7898ff}
   </style>
 </head>
 <body>
@@ -213,9 +221,46 @@
       </section>
 
       <section class="card">
+        <h2>③ 失敗風險：降級／破壞機率</h2>
+        <p class="sub">可選填。模型假設每次結果只有三種：成功、破壞（或降級）、無變化。若成功率是 10%、破壞率是 2%，其餘 88% 就是無變化。</p>
+        <div class="form-grid">
+          <div>
+            <label for="dangerProb">破壞／降級機率（%）</label>
+            <div class="range-row">
+              <input id="dangerProbRange" type="range" min="0" max="99.99" step="0.01" value="0">
+              <input id="dangerProb" type="number" min="0" max="99.99" step="0.01" value="0">
+            </div>
+            <div class="hint">必須滿足：成功率 + 破壞率 ≤ 100%。</div>
+          </div>
+          <div>
+            <label>目前機率拆分</label>
+            <div class="metric" style="height:100%;display:flex;align-items:center">
+              <div>
+                <div class="k">無變化機率</div>
+                <div class="v" id="safeProb">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="decision-grid">
+          <div class="metric"><div class="k">持續嘗試最終成功</div><div class="v success" id="eventualSuccess">—</div></div>
+          <div class="metric"><div class="k">持續嘗試最終破壞</div><div class="v warn" id="eventualDanger">—</div></div>
+          <div class="metric"><div class="k">在 n 次內先成功</div><div class="v success" id="successBeforeN">—</div></div>
+          <div class="metric"><div class="k">在 n 次內先破壞</div><div class="v warn" id="dangerBeforeN">—</div></div>
+        </div>
+
+        <div class="decision-banner">
+          <div class="title" id="decisionTitle">—</div>
+          <div class="desc" id="decisionDesc">輸入破壞率後，這裡會整理目前嘗試的風險與成本。</div>
+          <div class="risk-meter"><span id="riskBar"></span></div>
+        </div>
+      </section>
+
+      <section class="card">
         <div class="cost-header">
           <div>
-            <h2>③ 成本計算（可 0 項／多項）</h2>
+            <h2>④ 成本計算（可 0 項／多項）</h2>
             <p class="sub">每一列代表「每抽 1 次」會消耗多少；例如：石頭 1、金幣 10。下方會自動換算 90%／95%／99% 目標所需總成本。</p>
           </div>
           <button class="add" id="addCost">＋ 成本</button>
@@ -234,7 +279,7 @@
       </section>
 
       <section class="card">
-        <h2>④ 模擬結果直方圖</h2>
+        <h2>⑤ 模擬結果直方圖</h2>
         <p class="sub">直方圖顯示：在每一組做 n 次時，最後「成功了幾次」。虛線理論平均值 = n × p。</p>
         <div class="chart-wrap"><canvas id="histogram"></canvas></div>
         <div class="metric-grid">
@@ -247,7 +292,7 @@
 
       <section class="grid two">
         <div class="card">
-          <h2>⑤ 怎麼讀懂結果？</h2>
+          <h2>⑥ 怎麼讀懂結果？</h2>
           <div class="explain">
             <div class="tip"><strong>「10%」不是「10 抽必出」</strong>每次都是 10% 的獨立事件。連續失敗不會自動讓下一抽變高。</div>
             <div class="tip"><strong>90% 也不是保證</strong>90% 表示長期、重複相同條件時約有 90% 的組別會至少成功一次。</div>
@@ -256,7 +301,7 @@
         </div>
 
         <div class="card">
-          <h2>⑥ 互動教學小實驗</h2>
+          <h2>⑦ 互動教學小實驗</h2>
           <p class="sub">先猜，再跑：把「10% 成功」時的 n 改成 1、5、10、22、44，看看直覺是否正確。</p>
           <div class="formula">
             90%：n ≥ log(1−0.90) / log(1−0.10) ≈ 21.85 → 22 次<br>
@@ -268,7 +313,7 @@
       </section>
     </main>
 
-    <div class="footer">@歐小龍 2026</div>
+    <div class="footer">@歐小龍 2026/9/1 更新</div>
   </div>
 
 <script>
@@ -281,6 +326,8 @@
   const seed = $('seed');
   const costList = $('costList');
   const canvas = $('histogram');
+  const dangerProb = $('dangerProb');
+  const dangerProbRange = $('dangerProbRange');
   let lastHistogram = [];
 
   const defaults = {
@@ -303,12 +350,91 @@
     return v / 100;
   }
 
+
+  function getD(){
+    let v = parseFloat(dangerProb.value);
+    if (!Number.isFinite(v)) v = 0;
+    v = clamp(v, 0, 99.99);
+    v = Math.min(v, Math.max(0, 100 - (parseFloat(prob.value) || 0)));
+    dangerProb.value = v;
+    dangerProbRange.value = v;
+    return v / 100;
+  }
+
+  function outcomeBeforeN(p,d,n,type){
+    const q = 1-p-d;
+    if (p+d <= 0) return 0;
+    const terminal = 1 - Math.pow(Math.max(0,q), n);
+    return (type === 'success' ? p : d) / (p+d) * terminal;
+  }
+
+  function updateDecision(){
+    const p = getP();
+    const d = getD();
+    const q = Math.max(0, 1-p-d);
+    const n = clamp(parseInt(attempts.value,10)||1, 1, 1000000);
+    const c = readCosts().reduce((sum,x)=>sum+x.value,0);
+
+    $('safeProb').textContent = pct(q,3);
+
+    if (p+d > 0){
+      $('eventualSuccess').textContent = pct(p/(p+d),3);
+      $('eventualDanger').textContent = pct(d/(p+d),3);
+      $('successBeforeN').textContent = pct(outcomeBeforeN(p,d,n,'success'),3);
+      $('dangerBeforeN').textContent = pct(outcomeBeforeN(p,d,n,'danger'),3);
+    } else {
+      $('eventualSuccess').textContent = '0%';
+      $('eventualDanger').textContent = '0%';
+      $('successBeforeN').textContent = '0%';
+      $('dangerBeforeN').textContent = '0%';
+    }
+
+    const expectedCost = c * n;
+    const risk = d > 0 && p+d > 0 ? 100*d/(p+d) : 0;
+    $('riskBar').style.width = `${Math.min(100, risk)}%`;
+
+    const title = $('decisionTitle');
+    const desc = $('decisionDesc');
+
+    if (p <= 0){
+      title.textContent = '⛔ 沒有成功機率';
+      desc.textContent = '成功率為 0%，目前設定下不適合進行這項嘗試。';
+    } else if (d === 0 && c === 0){
+      title.textContent = '🟢 沒有破壞風險，也沒有抽取成本';
+      desc.textContent = `在 ${fmt(n,0)} 次內至少成功一次的理論機率為 ${pct(theoreticalAtLeast(p,n),3)}。`;
+    } else if (d === 0){
+      title.textContent = '🟡 沒有破壞風險，但有抽取成本';
+      desc.textContent = `做 ${fmt(n,0)} 次需要 ${fmt(expectedCost,2)} 的總成本；是否值得，主要取決於成功帶來的收益。`;
+    } else {
+      title.textContent = risk >= 30 ? '🔴 破壞風險偏高，需謹慎嘗試' : '🟡 有破壞風險，建議一起看成本';
+      desc.textContent = `做 ${fmt(n,0)} 次需要 ${fmt(expectedCost,2)} 的總成本；若持續抽到成功或破壞，最終成功機率約 ${pct(p/(p+d),3)}，最終破壞機率約 ${pct(d/(p+d),3)}。`;
+    }
+  }
+
+  dangerProb.addEventListener('input', () => {
+    let v = parseFloat(dangerProb.value) || 0;
+    v = clamp(v, 0, Math.max(0,100-(parseFloat(prob.value)||0)));
+    dangerProb.value = v;
+    dangerProbRange.value = v;
+    updateAll();
+  });
+  dangerProbRange.addEventListener('input', () => {
+    let v = parseFloat(dangerProbRange.value) || 0;
+    v = clamp(v, 0, Math.max(0,100-(parseFloat(prob.value)||0)));
+    dangerProb.value = v;
+    dangerProbRange.value = v;
+    updateAll();
+  });
+
   function syncProb(fromRange){
     let v = parseFloat(fromRange ? probRange.value : prob.value);
     if (!Number.isFinite(v)) v = 10;
     v = clamp(v, 0.01, 100);
     prob.value = v;
     probRange.value = v;
+    const d = Math.min(Math.max(parseFloat(dangerProb.value || 0),0), Math.max(0,100-v));
+    dangerProb.value = d;
+    dangerProbRange.value = d;
     updateAll();
   }
 
@@ -412,9 +538,13 @@
       btn.onclick = () => {
         btn.closest('.cost-row').remove();
         updateCosts();
+        updateDecision();
       };
     });
-    costList.querySelectorAll('input').forEach(inp => inp.addEventListener('input', updateCosts));
+    costList.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => {
+      updateCosts();
+      updateDecision();
+    }));
   }
 
   // Seeded PRNG (Mulberry32)
@@ -599,6 +729,7 @@
 
   function updateAll(){
     updateTheory();
+    updateDecision();
     if(lastHistogram?.p !== undefined){
       // do not rerun automatically; keep result visible for learning
     }
@@ -609,6 +740,7 @@
   $('resetBtn').onclick = () => {
     prob.value=defaults.prob; probRange.value=defaults.prob;
     attempts.value=defaults.attempts; runs.value=defaults.runs; seed.value=defaults.seed;
+    dangerProb.value=0; dangerProbRange.value=0;
     costList.innerHTML='';
     lastHistogram=[];
     $('status').textContent='已重設。尚未執行模擬。';
