@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>遊戲機率模擬器｜成功率 × 抽數 × 成本</title>
+  <meta name="description" content="遊戲機率模擬器，支援理論機率、蒙地卡羅模擬、直方圖與多項成本。" />
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#121a2f;
+      --panel-2:#0f172a;
+      --line:#263455;
+      --text:#ecf2ff;
+      --muted:#9cadcf;
+      --primary:#7c9cff;
+      --primary-2:#9c7cff;
+      --success:#49d39a;
+      --warning:#f4c96b;
+      --danger:#ff758c;
+      --shadow: 0 18px 50px rgba(0,0,0,.28);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(124,156,255,.14), transparent 28%),
+        radial-gradient(circle at 85% 5%, rgba(156,124,255,.12), transparent 30%),
+        var(--bg);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      line-height:1.55;
+    }
+    .wrap{width:min(1180px, calc(100% - 32px)); margin:0 auto}
+    header{padding:38px 0 24px}
+    .eyebrow{
+      display:inline-flex; gap:8px; align-items:center;
+      color:#c8d5f8; background:rgba(124,156,255,.11); border:1px solid rgba(124,156,255,.24);
+      padding:7px 11px; border-radius:999px; font-size:13px;
+    }
+    h1{font-size:clamp(30px,5vw,50px); line-height:1.05; margin:16px 0 10px; letter-spacing:-.03em}
+    .lead{color:var(--muted); max-width:800px; margin:0}
+    main{padding-bottom:48px}
+    .grid{display:grid; gap:18px}
+    .top{grid-template-columns:1.05fr .95fr}
+    .two{grid-template-columns:1fr 1fr}
+    @media(max-width:900px){.top,.two{grid-template-columns:1fr}}
+    .card{
+      background:linear-gradient(180deg, rgba(18,26,47,.96), rgba(15,23,42,.96));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:22px;
+      box-shadow:var(--shadow);
+    }
+    .card h2{margin:0 0 5px; font-size:20px}
+    .card .sub{margin:0 0 18px; color:var(--muted); font-size:14px}
+    .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+    @media(max-width:560px){.form-grid{grid-template-columns:1fr}}
+    label{display:block; color:#cad4ec; font-size:13px; margin:0 0 7px}
+    input, button, select{
+      font:inherit;
+    }
+    input[type=number], input[type=text]{
+      width:100%;
+      padding:11px 12px;
+      color:var(--text);
+      background:#0a1122;
+      border:1px solid #304064;
+      border-radius:11px;
+      outline:none;
+      transition:.15s ease;
+    }
+    input:focus{border-color:var(--primary); box-shadow:0 0 0 3px rgba(124,156,255,.12)}
+    .hint{font-size:12px;color:#7f91b9;margin-top:6px}
+    .range-row{display:grid; grid-template-columns:1fr 100px; gap:10px; align-items:center}
+    input[type=range]{width:100%; accent-color:var(--primary)}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px}
+    button{
+      border:1px solid transparent;
+      border-radius:11px;
+      padding:11px 15px;
+      cursor:pointer;
+      color:white;
+      background:#253352;
+      transition:.15s ease;
+      font-weight:700;
+    }
+    button:hover{transform:translateY(-1px); filter:brightness(1.08)}
+    button.primary{background:linear-gradient(135deg,var(--primary),#6280ef)}
+    button.secondary{background:#18233c; border-color:#314265}
+    button.reset{background:transparent;border-color:#39486a;color:#b6c4e2}
+    button.add{background:rgba(73,211,154,.1);border-color:rgba(73,211,154,.28);color:#91efc7}
+    button.small{padding:7px 10px;font-size:12px}
+    .metric-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:15px}
+    @media(max-width:1000px){.metric-grid{grid-template-columns:repeat(2,1fr)}}
+    .metric{
+      background:#0a1122; border:1px solid #263552; border-radius:13px; padding:13px;
+    }
+    .metric .k{font-size:12px;color:var(--muted)}
+    .metric .v{font-size:25px;font-weight:800;margin-top:2px}
+    .metric .v.success{color:var(--success)}
+    .metric .v.warn{color:var(--warning)}
+    .table-wrap{overflow:auto;border:1px solid #263552;border-radius:14px}
+    table{width:100%;border-collapse:collapse;min-width:720px}
+    th,td{padding:12px 13px;text-align:left;border-bottom:1px solid #1f2b46;font-size:14px}
+    th{color:#a9b9dc;font-weight:700;background:#0d1528}
+    tr:last-child td{border-bottom:0}
+    td.good{color:var(--success);font-weight:800}
+    .cost-header{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .cost-list{display:grid;gap:9px;margin-top:12px}
+    .cost-row{
+      display:grid; grid-template-columns:1fr 110px 88px;
+      gap:8px; align-items:center;
+      background:#0b1325;border:1px solid #253350;border-radius:12px;padding:9px;
+    }
+    @media(max-width:560px){.cost-row{grid-template-columns:1fr 100px 72px}}
+    .cost-total{
+      display:flex;justify-content:space-between;align-items:center;
+      margin-top:12px;padding-top:13px;border-top:1px solid #273654;
+    }
+    .chart-wrap{
+      height:430px; border:1px solid #263552; border-radius:14px; background:#0a1122; padding:14px;
+      overflow:hidden;
+    }
+    canvas{width:100%;height:100%;display:block}
+    .explain{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px
+    }
+    @media(max-width:800px){.explain{grid-template-columns:1fr}}
+    .tip{padding:14px;border-radius:13px;background:#0d1528;border:1px solid #273654}
+    .tip strong{display:block;margin-bottom:5px}
+    .formula{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      padding:12px 13px;background:#09101f;border:1px dashed #324364;border-radius:12px;
+      overflow:auto; white-space:nowrap; color:#c8d5f2; font-size:13px;
+    }
+    .status{margin-top:12px;color:#8ea2ca;font-size:13px;min-height:20px}
+    .footer{text-align:center;color:#627396;font-size:12px;padding:25px 0 10px}
+    .pill{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;background:#17213a;color:#9eb0d6}
+    .note{font-size:13px;color:#91a4cb}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <span class="eyebrow">🎲 基本機率直覺工具</span>
+      <h1>遊戲機率模擬器</h1>
+      <p class="lead">輸入官方宣稱的成功率，看看「抽幾次」與「至少成功一次」之間到底是什麼關係。可用蒙地卡羅模擬驗證理論值，並加入多項成本估算。</p>
+    </header>
+
+    <main class="grid">
+      <section class="grid top">
+        <div class="card">
+          <h2>① 設定機率與試驗</h2>
+          <p class="sub">每次抽取彼此獨立，且每次成功率固定不變。</p>
+
+          <div class="form-grid">
+            <div>
+              <label for="prob">單次成功機率 p（%）</label>
+              <div class="range-row">
+                <input id="probRange" type="range" min="0.01" max="100" step="0.01" value="10">
+                <input id="prob" type="number" min="0.01" max="100" step="0.01" value="10">
+              </div>
+              <div class="hint">例如官方說「10% 成功」。</div>
+            </div>
+            <div>
+              <label for="attempts">每組抽取／試驗次數 n</label>
+              <input id="attempts" type="number" min="1" max="1000000" step="1" value="10">
+              <div class="hint">用來觀察「做 n 次，至少成功一次」的機率。</div>
+            </div>
+            <div>
+              <label for="runs">模擬組數（每組都做 n 次）</label>
+              <input id="runs" type="number" min="100" max="200000" step="100" value="10000">
+              <div class="hint">越大越穩定，但運算量也更高。</div>
+            </div>
+            <div>
+              <label for="seed">亂數種子（可選）</label>
+              <input id="seed" type="number" min="0" max="2147483647" step="1" placeholder="留空＝隨機">
+              <div class="hint">填入同一數字，可重現相同結果。</div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="primary" id="runBtn">▶ 執行模擬</button>
+            
+            <button class="reset" id="resetBtn">↺ 重設</button>
+          </div>
+          <div class="status" id="status">尚未執行模擬。</div>
+        </div>
+
+        <div class="card">
+          <h2>② 理論值：要做幾次才有 X% 機會成功？</h2>
+          <p class="sub">這裡的「成功」指 <strong>至少成功一次</strong>。</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>目標至少成功率</th><th>預期最少試驗次數</th><th>達標後實際理論值</th><th>達標成本</th></tr></thead>
+              <tbody id="targetTable"></tbody>
+            </table>
+          </div>
+
+          <div style="margin-top:14px" class="formula" id="formula">P(至少成功一次) = 1 − (1 − p)ⁿ</div>
+          <div class="metric-grid">
+            <div class="metric"><div class="k">目前 n 的理論成功率</div><div class="v success" id="theoryRate">—</div></div>
+            <div class="metric"><div class="k">期望成功次數（n × p）</div><div class="v" id="expectedSuccess">—</div></div>
+            <div class="metric"><div class="k">平均首次成功所需次數</div><div class="v warn" id="expectedAttempts">—</div></div>
+            <div class="metric"><div class="k">每 n 次全部失敗的機率</div><div class="v" id="failRate">—</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="cost-header">
+          <div>
+            <h2>③ 成本計算（可 0 項／多項）</h2>
+            <p class="sub">每一列代表「每抽 1 次」會消耗多少；例如：石頭 1、金幣 10。下方會自動換算 90%／95%／99% 目標所需總成本。</p>
+          </div>
+          <button class="add" id="addCost">＋ 成本</button>
+        </div>
+        <div class="cost-list" id="costList"></div>
+        <div class="cost-total">
+          <div>
+            <div class="note">每次試驗的總成本（各項相加）</div>
+            <strong id="costPerAttempt">0</strong>
+          </div>
+          <div style="text-align:right">
+            <div class="note">做目前 n 次的成本</div>
+            <strong id="costForN">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>④ 模擬結果直方圖</h2>
+        <p class="sub">直方圖顯示：在每一組做 n 次時，最後「成功了幾次」。虛線理論平均值 = n × p。</p>
+        <div class="chart-wrap"><canvas id="histogram"></canvas></div>
+        <div class="metric-grid">
+          <div class="metric"><div class="k">模擬平均成功次數</div><div class="v" id="simMean">—</div></div>
+          <div class="metric"><div class="k">理論平均成功次數</div><div class="v" id="theoryMean">—</div></div>
+          <div class="metric"><div class="k">模擬「至少成功一次」</div><div class="v success" id="simAtLeast">—</div></div>
+          <div class="metric"><div class="k">理論「至少成功一次」</div><div class="v success" id="theoryAtLeast">—</div></div>
+        </div>
+      </section>
+
+      <section class="grid two">
+        <div class="card">
+          <h2>⑤ 怎麼讀懂結果？</h2>
+          <div class="explain">
+            <div class="tip"><strong>「10%」不是「10 抽必出」</strong>每次都是 10% 的獨立事件。連續失敗不會自動讓下一抽變高。</div>
+            <div class="tip"><strong>90% 也不是保證</strong>90% 表示長期、重複相同條件時約有 90% 的組別會至少成功一次。</div>
+            <div class="tip"><strong>模擬和理論不會完全一樣</strong>有限次模擬會有隨機波動；增加模擬組數，通常會更接近理論值。</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>⑥ 互動教學小實驗</h2>
+          <p class="sub">先猜，再跑：把「10% 成功」時的 n 改成 1、5、10、22、44，看看直覺是否正確。</p>
+          <div class="formula">
+            90%：n ≥ log(1−0.90) / log(1−0.10) ≈ 21.85 → 22 次<br>
+            95%：≈ 28.43 → 29 次<br>
+            99%：≈ 43.71 → 44 次
+          </div>
+          <p class="hint">提醒：以上數值是「至少成功一次」的理論門檻，不是保證在該次數內必定成功。</p>
+        </div>
+      </section>
+    </main>
+
+    <div class="footer">@歐小龍 2026</div>
+  </div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const prob = $('prob');
+  const probRange = $('probRange');
+  const attempts = $('attempts');
+  const runs = $('runs');
+  const seed = $('seed');
+  const costList = $('costList');
+  const canvas = $('histogram');
+  let lastHistogram = [];
+
+  const defaults = {
+    prob: 10, attempts: 22, runs: 10000, seed: '',
+    costs: []
+  };
+
+  function clamp(n, min, max){ return Math.min(max, Math.max(min, n)); }
+  function fmt(n, digits=2){
+    return Number(n).toLocaleString('zh-Hant', {maximumFractionDigits: digits});
+  }
+  function pct(x, digits=2){
+    return (x * 100).toLocaleString('zh-Hant', {maximumFractionDigits:digits}) + '%';
+  }
+
+  function getP(){
+    let v = parseFloat(prob.value);
+    if (!Number.isFinite(v)) v = 10;
+    v = clamp(v, 0.01, 100);
+    return v / 100;
+  }
+
+  function syncProb(fromRange){
+    let v = parseFloat(fromRange ? probRange.value : prob.value);
+    if (!Number.isFinite(v)) v = 10;
+    v = clamp(v, 0.01, 100);
+    prob.value = v;
+    probRange.value = v;
+    updateAll();
+  }
+
+  prob.addEventListener('input', () => syncProb(false));
+  probRange.addEventListener('input', () => syncProb(true));
+  attempts.addEventListener('input', updateAll);
+
+  function theoreticalAtLeast(p, n){
+    if (p >= 1) return 1;
+    if (p <= 0) return 0;
+    return 1 - Math.pow(1 - p, n);
+  }
+
+  function requiredAttempts(p, target){
+    if (p <= 0) return Infinity;
+    if (p >= 1) return 1;
+    return Math.ceil(Math.log(1 - target) / Math.log(1 - p));
+  }
+
+  function formatCostSummary(n){
+    const costs = readCosts();
+    if (!costs.length) return '<span class="pill">未設定成本</span>';
+    if (!Number.isFinite(n)) return '—';
+    return costs.map(c => `${fmt(c.value * n, 2)} ${escapeHtml(c.name)}`).join(' + ');
+  }
+
+  function updateTargetTable(){
+    const p = getP();
+    const targets = [0.90, 0.95, 0.99];
+    $('targetTable').innerHTML = targets.map(t => {
+      const n = requiredAttempts(p, t);
+      const actual = Number.isFinite(n) ? theoreticalAtLeast(p, n) : 0;
+      return `<tr>
+        <td><strong>${pct(t,0)}</strong></td>
+        <td>${Number.isFinite(n) ? `<strong>${fmt(n,0)} 次</strong>` : '無法達成'}</td>
+        <td class="good">${Number.isFinite(n) ? pct(actual,3) : '—'}</td>
+        <td><strong>${formatCostSummary(n)}</strong></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function updateTheory(){
+    const p = getP();
+    let n = parseInt(attempts.value, 10);
+    if (!Number.isFinite(n)) n = 1;
+    n = clamp(n, 1, 1000000);
+    attempts.value = n;
+
+    const atLeast = theoreticalAtLeast(p, n);
+    $('theoryRate').textContent = pct(atLeast, 3);
+    $('expectedSuccess').textContent = fmt(n * p, 3);
+    $('expectedAttempts').textContent = p > 0 ? fmt(1 / p, 3) + ' 次' : '∞';
+    $('failRate').textContent = pct(1 - atLeast, 3);
+    $('theoryMean').textContent = fmt(n * p, 3);
+    $('theoryAtLeast').textContent = pct(atLeast, 3);
+    $('formula').textContent = `P(至少成功一次) = 1 − (1 − ${fmt(p*100,2)}%)^${fmt(n,0)} = ${pct(atLeast,3)}`;
+    updateTargetTable();
+    updateCosts();
+  }
+
+  function costRowTemplate(index, item){
+    const name = item?.name ?? `成本 ${index+1}`;
+    const value = item?.value ?? 0;
+    return `<div class="cost-row" data-cost-index="${index}">
+      <input type="text" class="cost-name" value="${escapeHtml(name)}" placeholder="例如：抽卡券">
+      <input type="number" class="cost-value" min="0" step="0.01" value="${value}" placeholder="0">
+      <button class="small reset remove-cost" type="button">移除</button>
+    </div>`;
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function readCosts(){
+    return [...costList.querySelectorAll('.cost-row')].map((row, i) => ({
+      name: row.querySelector('.cost-name').value || `成本 ${i+1}`,
+      value: Math.max(0, parseFloat(row.querySelector('.cost-value').value) || 0)
+    }));
+  }
+
+  function updateCosts(){
+    const costs = readCosts();
+    const per = costs.reduce((sum, x) => sum + x.value, 0);
+    const n = Math.max(1, parseInt(attempts.value,10) || 1);
+    $('costPerAttempt').textContent = fmt(per,2);
+    $('costForN').textContent = fmt(per * n,2);
+    updateTargetTable();
+  }
+
+  function addCostRow(name='成本', value=0){
+    const data = readCosts();
+    data.push({name: `${name} ${data.length+1}`, value});
+    costList.innerHTML = data.map((x,i) => costRowTemplate(i,x)).join('');
+    bindCostEvents();
+    updateCosts();
+  }
+
+  function bindCostEvents(){
+    costList.querySelectorAll('.remove-cost').forEach(btn => {
+      btn.onclick = () => {
+        btn.closest('.cost-row').remove();
+        updateCosts();
+      };
+    });
+    costList.querySelectorAll('input').forEach(inp => inp.addEventListener('input', updateCosts));
+  }
+
+  // Seeded PRNG (Mulberry32)
+  function makeRng(){
+    const s = parseInt(seed.value,10);
+    if (!Number.isFinite(s) || s < 0) return Math.random;
+    let t = (s >>> 0) + 0x6D2B79F5;
+    return function(){
+      t += 0x6D2B79F5;
+      let x = t;
+      x = Math.imul(x ^ x >>> 15, x | 1);
+      x ^= x + Math.imul(x ^ x >>> 7, x | 61);
+      return ((x ^ x >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function binomialSample(n, p, rng){
+    // For teaching-scale simulations, a direct Bernoulli loop is easy to understand.
+    // Avoid excessive work with a normal approximation only for very large n.
+    if (n > 20000){
+      const mean = n*p;
+      const sd = Math.sqrt(n*p*(1-p));
+      let z = Math.sqrt(-2*Math.log(Math.max(rng(), 1e-12))) * Math.cos(2*Math.PI*rng());
+      return Math.round(clamp(mean + z*sd, 0, n));
+    }
+    let s=0;
+    for(let i=0;i<n;i++) if(rng() < p) s++;
+    return s;
+  }
+
+  function runSimulation(){
+    const p = getP();
+    let n = clamp(parseInt(attempts.value,10)||1, 1, 1000000);
+    let r = clamp(parseInt(runs.value,10)||10000, 100, 200000);
+    attempts.value = n; runs.value = r;
+
+    const rng = makeRng();
+    const hist = new Map();
+    let totalSuccess = 0;
+    let atLeast = 0;
+
+    for(let i=0;i<r;i++){
+      const s = binomialSample(n,p,rng);
+      hist.set(s, (hist.get(s)||0)+1);
+      totalSuccess += s;
+      if(s >= 1) atLeast++;
+    }
+
+    const min = Math.min(...hist.keys());
+    const max = Math.max(...hist.keys());
+    const values = [];
+    for(let k=min;k<=max;k++) values.push({k, count:hist.get(k)||0});
+
+    lastHistogram = {values, p, n, runs:r, mean:totalSuccess/r, atLeast:atLeast/r};
+    $('simMean').textContent = fmt(totalSuccess/r,3);
+    $('simAtLeast').textContent = pct(atLeast/r,3);
+    const theory = theoreticalAtLeast(p,n);
+    $('status').textContent = `完成 ${fmt(r,0)} 組模擬：模擬至少成功一次 ${pct(atLeast/r,3)}，理論值 ${pct(theory,3)}。`;
+    drawHistogram(lastHistogram);
+  }
+
+  function resizeCanvas(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = Math.max(1, Math.round(rect.width * dpr));
+    canvas.height = Math.max(1, Math.round(rect.height * dpr));
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    drawHistogram(lastHistogram);
+  }
+
+  function drawHistogram(data){
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width, h = rect.height;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,w,h);
+
+    const left=64, right=22, top=28, bottom=58;
+    const cw=Math.max(10,w-left-right), ch=Math.max(10,h-top-bottom);
+
+    ctx.font='12px ui-sans-serif, system-ui, sans-serif';
+    ctx.lineWidth=1;
+    ctx.strokeStyle='#22304d';
+    ctx.fillStyle='#8ea2ca';
+
+    if(!data || !data.values || !data.values.length){
+      for(let i=0;i<=4;i++){
+        const y=top+ch*(1-i/4);
+        ctx.beginPath(); ctx.moveTo(left,y); ctx.lineTo(w-right,y); ctx.stroke();
+      }
+      ctx.textAlign='center';
+      ctx.fillStyle='#7184ab';
+      ctx.font='14px ui-sans-serif, system-ui, sans-serif';
+      ctx.fillText('執行模擬後，結果會顯示在這裡。', w/2, h/2);
+      return;
+    }
+
+    const vals=data.values;
+    const plottedMax=Math.max(...vals.map(x=>x.count),1);
+    const rangeMin=vals[0].k, rangeMax=vals[vals.length-1].k;
+
+    let plotted = vals;
+    if (vals.length > 70){
+      const groupSize = Math.ceil(vals.length / 70);
+      plotted=[];
+      for(let i=0;i<vals.length;i+=groupSize){
+        const slice=vals.slice(i,i+groupSize);
+        plotted.push({
+          k:slice[0].k,
+          end:slice[slice.length-1].k,
+          count:slice.reduce((s,x)=>s+x.count,0)
+        });
+      }
+    }
+    const groupedMax=Math.max(...plotted.map(x=>x.count),1);
+
+    // Y 軸格線與數值
+    for(let i=0;i<=4;i++){
+      const frac=i/4;
+      const y=top+ch*(1-frac);
+      ctx.strokeStyle='#22304d';
+      ctx.beginPath(); ctx.moveTo(left,y); ctx.lineTo(w-right,y); ctx.stroke();
+      ctx.fillStyle='#6f83ad';
+      ctx.textAlign='right';
+      ctx.fillText(fmt(Math.round(groupedMax*frac),0), left-10, y+4);
+    }
+
+    // 柱狀圖
+    const slot=cw/plotted.length;
+    plotted.forEach((v,i)=>{
+      const bh=(v.count/groupedMax)*ch;
+      const barW=Math.max(2, Math.min(34, slot*0.78));
+      const x=left + i*slot + (slot-barW)/2;
+      const y=top+ch-bh;
+      ctx.fillStyle='#7898ff';
+      ctx.fillRect(x,y,barW,bh);
+
+      if (barW >= 18 && bh > 20){
+        ctx.fillStyle='rgba(255,255,255,.78)';
+        ctx.font='11px ui-sans-serif, system-ui, sans-serif';
+        ctx.textAlign='center';
+        ctx.fillText(fmt(v.count,0), x+barW/2, Math.max(top+14,y-5));
+      }
+    });
+
+    // 平均值虛線
+    const mean=data.mean;
+    const meanPos = rangeMax === rangeMin ? 0.5 : (mean-rangeMin)/(rangeMax-rangeMin);
+    const meanX=left + clamp(meanPos,0,1)*cw;
+    ctx.strokeStyle='#f4c96b';
+    ctx.lineWidth=2;
+    ctx.setLineDash([8,7]);
+    ctx.beginPath(); ctx.moveTo(meanX,top); ctx.lineTo(meanX,top+ch); ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle='#f4c96b';
+    ctx.font='700 13px ui-sans-serif, system-ui, sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(`模擬平均 ${fmt(mean,2)}`, clamp(meanX,80,w-80), top-9);
+
+    // X 軸標籤
+    const labelCount=Math.min(9, plotted.length);
+    ctx.fillStyle='#8ea2ca';
+    ctx.font='12px ui-sans-serif, system-ui, sans-serif';
+    for(let i=0;i<labelCount;i++){
+      const idx=labelCount===1?0:Math.round(i*(plotted.length-1)/(labelCount-1));
+      const v=plotted[idx];
+      const x=left+idx*slot+slot/2;
+      const text=v.end != null && v.end !== v.k ? `${v.k}–${v.end}` : `${v.k}`;
+      ctx.textAlign='center';
+      ctx.fillText(text,x,top+ch+22);
+    }
+    ctx.textAlign='center';
+    ctx.fillText('單一模擬組的成功次數',left+cw/2,h-11);
+
+    ctx.save();
+    ctx.translate(17,top+ch/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.fillText('模擬組數',0,0);
+    ctx.restore();
+  }
+
+  function updateAll(){
+    updateTheory();
+    if(lastHistogram?.p !== undefined){
+      // do not rerun automatically; keep result visible for learning
+    }
+  }
+
+  $('runBtn').onclick = runSimulation;
+  $('addCost').onclick = () => addCostRow('成本');
+  $('resetBtn').onclick = () => {
+    prob.value=defaults.prob; probRange.value=defaults.prob;
+    attempts.value=defaults.attempts; runs.value=defaults.runs; seed.value=defaults.seed;
+    costList.innerHTML='';
+    lastHistogram=[];
+    $('status').textContent='已重設。尚未執行模擬。';
+    updateAll();
+    drawHistogram(null);
+  };
+
+  // Initial state: 0 cost items.
+  bindCostEvents();
+  updateAll();
+  drawHistogram(null);
+  window.addEventListener('resize', resizeCanvas);
+})();
+</script>
+</body>
+</html>
