@@ -7,6 +7,12 @@
   <meta name="description" content="遊戲機率模擬器，支援理論機率、蒙地卡羅模擬、直方圖與多項成本。" />
   <style>
     :root{
+      --card: var(--panel);
+      --surface: var(--panel);
+      --surface-2: var(--panel-2);
+      --fg: var(--text);
+      --accent: var(--primary);
+      --border: var(--line);
       --bg:#0b1020;
       --panel:#121a2f;
       --panel-2:#0f172a;
@@ -242,11 +248,81 @@
     .decision-banner .desc{margin-top:4px;color:#9fb0d1;font-size:13px}
     .risk-meter{margin-top:10px;height:10px;border-radius:999px;background:#1b2944;overflow:hidden}
     .risk-meter > span{display:block;height:100%;width:0%;background:#7898ff}
+
+    /* ===== Light / Dark theme (added for drawer) ===== */
+    body:not(.dark-theme) {
+      --bg: #f4f6fb;
+      --panel: #ffffff;
+      --panel-2: #f0f3fa;
+      --line: #d8dee9;
+      --text: #152033;
+      --muted: #5b6b86;
+      --primary: #3b6cff;
+      --primary-2: #6b4dff;
+      --success: #1f9d6a;
+      --warning: #b8860b;
+      --danger: #d6455d;
+      --shadow: 0 12px 36px rgba(21, 32, 51, 0.08);
+    }
+    body:not(.dark-theme) {
+      background:
+        radial-gradient(circle at 15% 10%, rgba(59,108,255,.08), transparent 28%),
+        radial-gradient(circle at 85% 5%, rgba(107,77,255,.06), transparent 30%),
+        var(--bg);
+      color: var(--text);
+    }
+    body:not(.dark-theme) .card {
+      background: linear-gradient(180deg, #ffffff, #f7f9fc);
+      border-color: var(--line);
+    }
+    body:not(.dark-theme) .eyebrow {
+      color: #3b6cff;
+      background: rgba(59,108,255,.08);
+      border-color: rgba(59,108,255,.2);
+    }
+    body.dark-theme {
+      /* keep existing :root dark values as-is when class present */
+    }
+
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5098041229443474"
      crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="shared/drawer.css">
 </head>
-<body>
+<body class="dark-theme">
+
+  <!-- 共用左側選單 -->
+  <button type="button" class="menu-fab" id="menu-fab" aria-label="開啟選單" onclick="openDrawer()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+      <path d="M4 7h16M4 12h16M4 17h16"/>
+    </svg>
+  </button>
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <aside class="drawer" id="drawer" role="dialog" aria-label="選單">
+    <div class="drawer-header">
+      <span class="drawer-title">選單</span>
+      <button type="button" class="drawer-close" aria-label="關閉" onclick="closeDrawer()">×</button>
+    </div>
+    <nav class="drawer-nav">
+      <a href="index.html" onclick="closeDrawer()">遊戲機率模擬器</a>
+    </nav>
+    <div class="drawer-section">
+      <div class="drawer-section-title">其它</div>
+      <nav class="drawer-nav">
+        <a href="https://aaa1223hk.github.io/QRcode-gen/" target="_blank" rel="noopener">即時 QR 生成 / 解碼</a>
+        <a href="https://aaa1223hk.github.io/Pokemon-Ability-Value-Calculator/" target="_blank" rel="noopener">寶可夢數值計算器</a>
+        <a href="https://aaa1223hk.github.io/Game-lottery-calculator/" target="_blank" rel="noopener">抽蛋計算器</a>
+        <a href="https://aaa1223hk.github.io/DN-3-color-beans/" target="_blank" rel="noopener">龍之谷3色豆集古代最佳化</a>
+      </nav>
+    </div>
+    <div class="drawer-footer">
+      <button type="button" id="theme-toggle-drawer" class="theme-in-drawer" aria-label="切換深色模式" title="切換深色模式">
+        <span class="theme-toggle-icon">🌙</span>
+        <span class="theme-toggle-text">深色模式</span>
+      </button>
+    </div>
+  </aside>
+
   <div class="wrap">
     <header>
       <span class="eyebrow">🎲 基本機率直覺工具</span>
@@ -925,5 +1001,6 @@
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+  <script src="shared/drawer.js"></script>
 </body>
 </html>
