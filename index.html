@@ -632,7 +632,7 @@
             </div>
             <div>
               <label for="seed" data-i18n="label-seed">亂數種子（可選）</label>
-              <input id="seed" type="number" min="0" max="2147483647" step="1" placeholder="留空＝隨機">
+              <input id="seed" type="number" min="0" max="2147483647" step="1" placeholder="留空＝隨機" data-i18n-placeholder="ph-seed">
               <div class="hint" data-i18n="hint-seed">填入同一數字，可重現相同結果。</div>
             </div>
           </div>
@@ -679,10 +679,10 @@
             <div class="hint" data-i18n="hint-danger">必須滿足：成功率 + 破壞率 ≤ 100%。</div>
           </div>
           <div>
-            <label>目前機率拆分</label>
+            <label data-i18n="prob-split">目前機率拆分</label>
             <div class="metric" style="height:100%;display:flex;align-items:center">
               <div>
-                <div class="k">無變化機率</div>
+                <div class="k" data-i18n="no-change">無變化機率</div>
                 <div class="v" id="safeProb">—</div>
               </div>
             </div>
@@ -698,7 +698,7 @@
 
         <div class="decision-banner">
           <div class="title" id="decisionTitle">—</div>
-          <div class="desc" id="decisionDesc">輸入破壞率後，這裡會整理目前嘗試的風險與成本。</div>
+          <div class="desc" id="decisionDesc" data-i18n="decision-idle">輸入破壞率後，這裡會整理目前嘗試的風險與成本。</div>
           <div class="risk-meter"><span id="riskBar"></span></div>
         </div>
       </section>
@@ -744,12 +744,12 @@
             <div class="summary-title">
               <span class="summary-icon">×</span>
               <div>
-                <div class="note">目前 n 次</div>
+                <div class="note" data-i18n="for-n">目前 n 次</div>
                 <strong><span data-i18n="cost-total">累計成本明細</span></strong>
               </div>
             </div>
             <div id="costForN" class="cost-breakdown">
-              <span class="pill">未設定成本</span>
+              <span class="pill" data-i18n="no-cost-set">未設定成本</span>
             </div>
           </div>
         </div>
@@ -886,18 +886,25 @@
     const title = $('decisionTitle');
     const desc = $('decisionDesc');
 
+    const L = (window.I18N && window.__lang && I18N[window.__lang]) || {};
     if (p <= 0){
-      title.textContent = '⛔ 沒有成功機率';
-      desc.textContent = '成功率為 0%，目前設定下不適合進行這項嘗試。';
+      title.textContent = L['dec-no-p'] || '⛔ 沒有成功機率';
+      desc.textContent = L['dec-no-p-desc'] || '成功率為 0%，目前設定下不適合進行這項嘗試。';
     } else if (d === 0 && c === 0){
-      title.textContent = '🟢 沒有破壞風險，也沒有抽取成本';
-      desc.textContent = `在 ${fmt(n,0)} 次內至少成功一次的理論機率為 ${pct(theoreticalAtLeast(p,n),3)}。`;
+      title.textContent = L['dec-safe'] || '🟢 沒有破壞風險，也沒有抽取成本';
+      desc.textContent = (L['dec-safe-desc'] || '在 {n} 次內至少成功一次的理論機率為 {p}。')
+        .replace('{n}', fmt(n,0)).replace('{p}', pct(theoreticalAtLeast(p,n),3));
     } else if (d === 0){
-      title.textContent = '🟡 沒有破壞風險，但有抽取成本';
-      desc.textContent = `做 ${fmt(n,0)} 次需要：${costText}；是否值得，主要取決於成功帶來的收益。`;
+      title.textContent = L['dec-cost'] || '🟡 沒有破壞風險，但有抽取成本';
+      desc.textContent = (L['dec-cost-desc'] || '做 {n} 次需要：{c}；是否值得，主要取決於成功帶來的收益。')
+        .replace('{n}', fmt(n,0)).replace('{c}', costText);
     } else {
-      title.textContent = risk >= 30 ? '🔴 破壞風險偏高，需謹慎嘗試' : '🟡 有破壞風險，建議一起看成本';
-      desc.textContent = `做 ${fmt(n,0)} 次需要：${costText}；若持續抽到成功或破壞，最終成功機率約 ${pct(p/(p+d),3)}，最終破壞機率約 ${pct(d/(p+d),3)}。`;
+      title.textContent = risk >= 30
+        ? (L['dec-high'] || '🔴 破壞風險偏高，需謹慎嘗試')
+        : (L['dec-risk'] || '🟡 有破壞風險，建議一起看成本');
+      desc.textContent = (L['dec-risk-desc'] || '做 {n} 次需要：{c}；若持續抽到成功或破壞，最終成功機率約 {s}，最終破壞機率約 {d}。')
+        .replace('{n}', fmt(n,0)).replace('{c}', costText)
+        .replace('{s}', pct(p/(p+d),3)).replace('{d}', pct(d/(p+d),3));
     }
   }
 
@@ -946,14 +953,14 @@
 
   function formatCostSummary(n){
     const costs = readCosts();
-    if (!costs.length) return '<span class="pill">未設定成本</span>';
+    if (!costs.length) { const t=(window.I18N&&window.__lang&&I18N[window.__lang]&&I18N[window.__lang]['no-cost-set'])||'未設定成本'; return '<span class="pill">'+t+'</span>'; }
     if (!Number.isFinite(n)) return '—';
     return costs.map(c => `${fmt(c.value * n, 2)} ${escapeHtml(c.name)}`).join('、');
   }
 
   function formatCostText(n){
     const costs = readCosts();
-    if (!costs.length) return '未設定成本';
+    if (!costs.length) return (window.I18N&&window.__lang&&I18N[window.__lang]&&I18N[window.__lang]['no-cost-set'])||'未設定成本';
     if (!Number.isFinite(n)) return '—';
     return costs.map(c => `${fmt(c.value * n, 2)} ${escapeHtml(c.name)}`).join('、');
   }
@@ -987,7 +994,8 @@
     $('failRate').textContent = pct(1 - atLeast, 3);
     $('theoryMean').textContent = fmt(n * p, 3);
     $('theoryAtLeast').textContent = pct(atLeast, 3);
-    $('formula').textContent = `P(至少成功一次) = 1 − (1 − ${fmt(p*100,2)}%)^${fmt(n,0)} = ${pct(atLeast,3)}`;
+    const fp = (window.I18N && window.__lang && I18N[window.__lang] && I18N[window.__lang]['formula-prefix']) || 'P(至少成功一次)';
+    $('formula').textContent = `${fp} = 1 − (1 − ${fmt(p*100,2)}%)^${fmt(n,0)} = ${pct(atLeast,3)}`;
     updateTargetTable();
     updateCosts();
   }
@@ -1015,7 +1023,7 @@
 
   function renderCostBreakdown(costs, multiplier=1){
     if (!costs.length){
-      return '<span class="pill">未設定成本</span>';
+      const _t=(window.I18N&&window.__lang&&I18N[window.__lang]&&I18N[window.__lang]['no-cost-set'])||'未設定成本'; return '<span class="pill">'+_t+'</span>';
     }
     return costs.map(c => `
       <span class="cost-item">
@@ -1257,8 +1265,8 @@
     attempts.value=defaults.attempts; runs.value=defaults.runs; seed.value=defaults.seed;
     dangerProb.value=0; dangerProbRange.value=0;
     costList.innerHTML='';
-    $('costPerAttempt').innerHTML='<span class="pill">未設定成本</span>';
-    $('costForN').innerHTML='<span class="pill">未設定成本</span>';
+    (function(){const t=(window.I18N&&window.__lang&&I18N[window.__lang]&&I18N[window.__lang]['no-cost-set'])||'未設定成本'; $('costPerAttempt').innerHTML='<span class="pill">'+t+'</span>';})();
+    (function(){const t=(window.I18N&&window.__lang&&I18N[window.__lang]&&I18N[window.__lang]['no-cost-set'])||'未設定成本'; $('costForN').innerHTML='<span class="pill">'+t+'</span>';})();
     $('costEmpty').style.display='flex';
     lastHistogram=[];
     $('status').textContent='已重設。尚未執行模擬。';
@@ -1279,7 +1287,8 @@
   <script src="shared/drawer.js"></script>
 <script>
   // ===== i18n =====
-  const I18N = {
+  window.I18N = window.I18N || {};
+  const I18N = window.I18N = {
     zh: {
       title: "遊戲機率模擬器",
       lead: "輸入官方宣稱的成功率，看看「抽幾次」與「至少成功一次」之間到底是什麼關係。可用蒙地卡羅模擬驗證理論值，並加入多項成本估算。",
@@ -1341,7 +1350,13 @@
       tip2: "90% 也不是保證。90% 表示長期、重複相同條件時約有 90% 的組別會至少成功一次。",
       tip3: "模擬和理論不會完全一樣。有限次模擬會有隨機波動；增加模擬組數，通常會更接近理論值。",
       "s7-sub": "先猜，再跑：把「10% 成功」時的 n 改成 1、5、10、22、44，看看直覺是否正確。",
-      "s7-hint": "提醒：以上數值是「至少成功一次」的理論門檻，不是保證在該次數內必定成功。"
+      "s7-hint": "提醒：以上數值是「至少成功一次」的理論門檻，不是保證在該次數內必定成功。",
+      "ph-seed": "留空＝隨機",
+      "prob-split": "目前機率拆分",
+      "no-change": "無變化機率",
+      "decision-idle": "輸入破壞率後，這裡會整理目前嘗試的風險與成本。",
+      "formula-prefix": "P(至少成功一次)"
+
     },
     en: {
       title: "Game Probability Simulator",
@@ -1404,7 +1419,13 @@
       tip2: "90% is not a guarantee. It means that over many repeated groups under the same conditions, about 90% of groups get at least one success.",
       tip3: "Simulation and theory will not match exactly. Finite runs have random noise; more groups usually get closer to theory.",
       "s7-sub": "Guess first, then run: change n for a 10% success rate to 1, 5, 10, 22, 44 and see if your intuition holds.",
-      "s7-hint": "Note: these are theory thresholds for “at least one success”, not a guarantee of success within that count."
+      "s7-hint": "Note: these are theory thresholds for “at least one success”, not a guarantee of success within that count.",
+      "ph-seed": "Leave empty = random",
+      "prob-split": "Current probability split",
+      "no-change": "No-change rate",
+      "decision-idle": "After entering a destroy rate, risk and cost of the current attempt are summarized here.",
+      "formula-prefix": "P(at least one success)"
+
     },
     ja: {
       title: "ゲーム確率シミュレーター",
@@ -1467,12 +1488,19 @@
       tip2: "90%も保証ではありません。同じ条件を何度も繰り返したとき、約90%のグループが少なくとも1回成功する、という意味です。",
       tip3: "シミュレーションと理論は完全一致しません。有限回ではランダムな揺れがあります。組数を増やすと理論に近づきやすくなります。",
       "s7-sub": "先に予想してから実行：成功率10%のときnを1・5・10・22・44に変えて、直感が合うか確認してみてください。",
-      "s7-hint": "注意：上記は「少なくとも1回成功」の理論しきい値であり、その回数以内に必ず成功する保証ではありません。"
+      "s7-hint": "注意：上記は「少なくとも1回成功」の理論しきい値であり、その回数以内に必ず成功する保証ではありません。",
+      "ph-seed": "空欄＝ランダム",
+      "prob-split": "現在の確率内訳",
+      "no-change": "変化なし確率",
+      "decision-idle": "破壊率を入力すると、現在の試行リスクとコストがここに整理されます。",
+      "formula-prefix": "P(少なくとも1回成功)"
+
     }
   };
 
   function setLang(lang) {
     if (!I18N[lang]) lang = "zh";
+    window.__lang = lang;
     try { localStorage.setItem("qr-lang", lang); } catch (e) {}
     document.documentElement.lang = lang === "zh" ? "zh-Hant" : lang;
     document.querySelectorAll(".lang-btn").forEach(btn => {
@@ -1486,6 +1514,14 @@
         el.textContent = I18N[lang][key];
       }
     });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+      const key = el.getAttribute("data-i18n-placeholder");
+      if (I18N[lang] && I18N[lang][key] != null) {
+        el.setAttribute("placeholder", I18N[lang][key]);
+      }
+    });
+    // refresh dynamic formula / decision if functions exist
+    try { if (typeof updateAll === "function") updateAll(); } catch (e) {}
   }
 
   // language buttons
