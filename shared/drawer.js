@@ -58,7 +58,7 @@
     if (btn) {
       var icon = btn.querySelector('.theme-toggle-icon');
       var text = btn.querySelector('.theme-toggle-text');
-      if (icon) icon.textContent = dark ? '☀️' : '🌙';
+      if (icon) icon.textContent = dark ? '☀️' : '🌛';
       if (text) {
         text.textContent = themeLabel(dark);
         text.setAttribute('data-i18n', dark ? 'menu-theme-light' : 'menu-theme-dark');
@@ -67,7 +67,7 @@
       btn.title = themeLabel(dark);
     }
     var topBtn = document.querySelector('.theme-btn');
-    if (topBtn) topBtn.textContent = dark ? '☀️' : '🌙';
+    if (topBtn) topBtn.textContent = dark ? '☀️' : '🌛';
   }
 
   var saved = null;
@@ -80,12 +80,16 @@
     applyTheme(getCurrentTheme());
   }
 
+  function toggleTheme() {
+    applyTheme(getCurrentTheme() === 'dark' ? 'light' : 'dark');
+  }
   var drawerThemeBtn = document.getElementById('theme-toggle-drawer');
   if (drawerThemeBtn) {
-    drawerThemeBtn.addEventListener('click', function () {
-      applyTheme(getCurrentTheme() === 'dark' ? 'light' : 'dark');
-    });
+    drawerThemeBtn.addEventListener('click', toggleTheme);
   }
+  document.querySelectorAll('.theme-btn').forEach(function (btn) {
+    btn.addEventListener('click', toggleTheme);
+  });
 
   var path = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
   document.querySelectorAll('.drawer-nav a').forEach(function (a) {
