@@ -478,11 +478,50 @@
       color: var(--text) !important;
       border-color: var(--line) !important;
     }
-    .theme-btn {
+    .top-controls {
       position: fixed;
       top: 18px;
       right: 18px;
       z-index: 40;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .lang-switch {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+    .lang-btn {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      height: 36px;
+      padding: 0 11px;
+      cursor: pointer;
+    }
+    .lang-btn:hover { color: var(--text); background: rgba(124,156,255,.08); }
+    .lang-btn.active {
+      color: var(--text);
+      background: rgba(124,156,255,.14);
+      font-weight: 700;
+    }
+    body:not(.dark-theme) .lang-switch {
+      background: #ffffff !important;
+      border-color: var(--line) !important;
+    }
+    body:not(.dark-theme) .lang-btn { color: #5c6b86 !important; }
+    body:not(.dark-theme) .lang-btn.active {
+      color: #152033 !important;
+      background: #e8eef8 !important;
+    }
+    .theme-btn {
       width: 42px;
       height: 42px;
       border-radius: 999px;
@@ -524,7 +563,14 @@
       <path d="M4 7h16M4 12h16M4 17h16"/>
     </svg>
   </button>
-  <button type="button" class="theme-btn" id="theme-toggle" aria-label="切換深淺色模式" title="切換深淺色模式">🌛</button>
+  <div class="top-controls">
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button type="button" class="lang-btn active" data-lang="zh" aria-pressed="true">中</button>
+      <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+      <button type="button" class="lang-btn" data-lang="ja" aria-pressed="false">日</button>
+    </div>
+    <button type="button" class="theme-btn" id="theme-toggle" aria-label="切換深淺色模式" title="切換深淺色模式">🌛</button>
+  </div>
   <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
   <aside class="drawer" id="drawer" role="dialog" aria-label="選單">
     <div class="drawer-header">
@@ -548,21 +594,21 @@
         <span class="theme-toggle-icon">🌙</span>
         <span class="theme-toggle-text">深色模式</span>
       </button>
-      <a href="https://aaa1223hk.github.io/about.html" target="_blank" rel="noopener" class="drawer-about-link" style="display:block;margin-top:10px;padding:10px 14px;text-align:left;color:var(--muted, #9cadcf);font-size:13px;text-decoration:none;border-radius:8px;">關於本站 / About</a>
+      <a href="https://aaa1223hk.github.io/about.html" target="_blank" rel="noopener" class="drawer-about-link" style="display:block;margin-top:10px;padding:10px 14px;text-align:left;color:var(--muted, #9cadcf);font-size:13px;text-decoration:none;border-radius:8px;"><span data-i18n="about">關於本站 / About</span></a>
     </div>
   </aside>
 
   <div class="wrap">
     <header>
-      <span class="eyebrow">🎲 基本機率直覺工具</span>
-      <h1>遊戲機率模擬器</h1>
-      <p class="lead">輸入官方宣稱的成功率，看看「抽幾次」與「至少成功一次」之間到底是什麼關係。可用蒙地卡羅模擬驗證理論值，並加入多項成本估算。</p>
+      <span class="eyebrow" data-i18n="eyebrow">🎲 基本機率直覺工具</span>
+      <h1 data-i18n="title">遊戲機率模擬器</h1>
+      <p class="lead" data-i18n="lead">輸入官方宣稱的成功率，看看「抽幾次」與「至少成功一次」之間到底是什麼關係。可用蒙地卡羅模擬驗證理論值，並加入多項成本估算。</p>
     </header>
 
     <main class="grid">
       <section class="grid top">
         <div class="card">
-          <h2>① 設定機率與試驗</h2>
+          <h2 data-i18n="s1">① 設定機率與試驗</h2>
           <p class="sub">每次抽取彼此獨立，且每次成功率固定不變。</p>
 
           <div class="form-grid">
@@ -592,15 +638,15 @@
           </div>
 
           <div class="actions">
-            <button class="primary" id="runBtn">▶ 執行模擬</button>
+            <button class="primary" id="runBtn">▶ <span data-i18n="run">執行模擬</span></button>
             
-            <button class="reset" id="resetBtn">↺ 重設</button>
+            <button class="reset" id="resetBtn">↺ <span data-i18n="reset">重設</span></button>
           </div>
-          <div class="status" id="status">尚未執行模擬。</div>
+          <div class="status" id="status"><span data-i18n="status-idle">尚未執行模擬。</span></div>
         </div>
 
         <div class="card">
-          <h2>② 理論值：要做幾次才有 X% 機會成功？</h2>
+          <h2 data-i18n="s2">② 理論值：要做幾次才有 X% 機會成功？</h2>
           <p class="sub">這裡的「成功」指 <strong>至少成功一次</strong>。</p>
 
           <div class="table-wrap">
@@ -621,7 +667,7 @@
       </section>
 
       <section class="card">
-        <h2>③ 失敗風險：降級／破壞機率</h2>
+        <h2 data-i18n="s3">③ 失敗風險：降級／破壞機率</h2>
         <p class="sub">可選填。模型假設每次結果只有三種：成功、破壞（或降級）、無變化。若成功率是 10%、破壞率是 2%，其餘 88% 就是無變化。</p>
         <div class="form-grid">
           <div>
@@ -661,10 +707,10 @@
         <div class="cost-header">
           <div>
             <div class="section-kicker">COST BREAKDOWN</div>
-            <h2>④ 成本計算 <span class="cost-count">可 0 項／多項</span></h2>
+            <h2><span data-i18n="s4">④ 成本計算</span> <span class="cost-count">可 0 項／多項</span></h2>
             <p class="sub">每一列代表「每抽 1 次」會消耗多少。輸入多種資源後，下方會逐項換算目前 n 次，以及 90%／95%／99% 目標所需成本。</p>
           </div>
-          <button class="add add-cost-btn" id="addCost"><span>＋</span> 新增成本</button>
+          <button class="add add-cost-btn" id="addCost"><span>＋</span> <span data-i18n="add-cost">新增成本</span></button>
         </div>
 
         <div class="cost-list-head">
@@ -676,8 +722,8 @@
 
         <div class="cost-empty" id="costEmpty">
           <div class="cost-empty-icon">＋</div>
-          <strong>尚未加入成本</strong>
-          <span>點擊「新增成本」開始建立成本明細</span>
+          <strong><span data-i18n="no-cost">尚未加入成本</span></strong>
+          <span><span data-i18n="no-cost-hint">點擊「新增成本」開始建立成本明細</span></span>
         </div>
 
         <div class="cost-total">
@@ -710,7 +756,7 @@
       </section>
 
       <section class="card">
-        <h2>⑤ 模擬結果直方圖</h2>
+        <h2 data-i18n="s5">⑤ 模擬結果直方圖</h2>
         <p class="sub">直方圖顯示：在每一組做 n 次時，最後「成功了幾次」。虛線理論平均值 = n × p。</p>
         <div class="chart-wrap"><canvas id="histogram"></canvas></div>
         <div class="metric-grid">
@@ -723,7 +769,7 @@
 
       <section class="grid two">
         <div class="card">
-          <h2>⑥ 怎麼讀懂結果？</h2>
+          <h2 data-i18n="s6">⑥ 怎麼讀懂結果？</h2>
           <div class="explain">
             <div class="tip"><strong>「10%」不是「10 抽必出」</strong>每次都是 10% 的獨立事件。連續失敗不會自動讓下一抽變高。</div>
             <div class="tip"><strong>90% 也不是保證</strong>90% 表示長期、重複相同條件時約有 90% 的組別會至少成功一次。</div>
@@ -732,7 +778,7 @@
         </div>
 
         <div class="card">
-          <h2>⑦ 互動教學小實驗</h2>
+          <h2 data-i18n="s7">⑦ 互動教學小實驗</h2>
           <p class="sub">先猜，再跑：把「10% 成功」時的 n 改成 1、5、10、22、44，看看直覺是否正確。</p>
           <div class="formula">
             90%：n ≥ log(1−0.90) / log(1−0.10) ≈ 21.85 → 22 次<br>
@@ -745,7 +791,7 @@
     </main>
 
     <section class="friend-ad" aria-label="友誼小廣告">
-      <h2>友誼小廣告</h2>
+      <h2 data-i18n="ad">友誼小廣告</h2>
       <ins class="adsbygoogle friend-ad-ins"
            data-ad-layout="in-article"
            data-ad-format="fluid"
@@ -1230,6 +1276,102 @@
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-  <script src="shared/drawer.js"></script>
+  <script src="shared/drawer.js"><script>
+
+  // ===== i18n =====
+  const I18N = {
+    zh: {
+      title: "遊戲機率模擬器",
+      lead: "輸入官方宣稱的成功率，看看「抽幾次」與「至少成功一次」之間到底是什麼關係。可用蒙地卡羅模擬驗證理論值，並加入多項成本估算。",
+      eyebrow: "🎲 基本機率直覺工具",
+      s1: "① 設定機率與試驗",
+      s2: "② 理論值：要做幾次才有 X% 機會成功？",
+      s3: "③ 失敗風險：降級／破壞機率",
+      s4: "④ 成本計算",
+      s5: "⑤ 模擬結果直方圖",
+      s6: "⑥ 怎麼讀懂結果？",
+      s7: "⑦ 互動教學小實驗",
+      ad: "友誼小廣告",
+      run: "執行模擬",
+      reset: "重設",
+      "status-idle": "尚未執行模擬。",
+      "add-cost": "新增成本",
+      "no-cost": "尚未加入成本",
+      "no-cost-hint": "點擊「新增成本」開始建立成本明細",
+      about: "關於本站 / About"
+    },
+    en: {
+      title: "Game Probability Simulator",
+      lead: "Enter the official success rate and explore the relationship between number of trials and the chance of at least one success. Supports Monte Carlo simulation and multi-item cost estimation.",
+      eyebrow: "🎲 Probability intuition tool",
+      s1: "① Probability & Trials",
+      s2: "② How many trials for X% chance of success?",
+      s3: "③ Failure risk: downgrade / destroy rate",
+      s4: "④ Cost calculation",
+      s5: "⑤ Simulation histogram",
+      s6: "⑥ How to read the results",
+      s7: "⑦ Interactive mini experiment",
+      ad: "Friendly ad",
+      run: "Run simulation",
+      reset: "Reset",
+      "status-idle": "Simulation not run yet.",
+      "add-cost": "Add cost",
+      "no-cost": "No costs added",
+      "no-cost-hint": "Click “Add cost” to start building the cost list",
+      about: "About"
+    },
+    ja: {
+      title: "ゲーム確率シミュレーター",
+      lead: "公式の成功率を入力し、「何回試すか」と「少なくとも1回成功する確率」の関係を確認できます。モンテカルロシミュレーションと複数コスト計算に対応。",
+      eyebrow: "🎲 確率直感ツール",
+      s1: "① 確率と試行回数",
+      s2: "② X%の成功確率に必要な試行回数",
+      s3: "③ 失敗リスク：降格／破壊確率",
+      s4: "④ コスト計算",
+      s5: "⑤ シミュレーション結果ヒストグラム",
+      s6: "⑥ 結果の見方",
+      s7: "⑦ インタラクティブミニ実験",
+      ad: "フレンド広告",
+      run: "シミュレーション実行",
+      reset: "リセット",
+      "status-idle": "まだ実行していません。",
+      "add-cost": "コスト追加",
+      "no-cost": "コスト未設定",
+      "no-cost-hint": "「コスト追加」を押して明細を作成",
+      about: "このサイトについて / About"
+    }
+  };
+
+  function setLang(lang) {
+    if (!I18N[lang]) lang = "zh";
+    try { localStorage.setItem("qr-lang", lang); } catch (e) {}
+    document.documentElement.lang = lang === "zh" ? "zh-Hant" : lang;
+    document.querySelectorAll(".lang-btn").forEach(btn => {
+      const active = btn.getAttribute("data-lang") === lang;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      if (I18N[lang] && I18N[lang][key] != null) {
+        el.textContent = I18N[lang][key];
+      }
+    });
+  }
+
+  // language buttons
+  document.querySelectorAll(".lang-btn").forEach(btn => {
+    btn.addEventListener("click", () => setLang(btn.getAttribute("data-lang")));
+  });
+
+  // init language
+  (function () {
+    let lang = "zh";
+    try { lang = localStorage.getItem("qr-lang") || "zh"; } catch (e) {}
+    if (!I18N[lang]) lang = "zh";
+    setLang(lang);
+  })();
+
+</script>
 </body>
 </html>
