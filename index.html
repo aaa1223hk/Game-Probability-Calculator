@@ -249,39 +249,169 @@
     .risk-meter{margin-top:10px;height:10px;border-radius:999px;background:#1b2944;overflow:hidden}
     .risk-meter > span{display:block;height:100%;width:0%;background:#7898ff}
 
-    /* ===== Light / Dark theme (added for drawer) ===== */
+
+    /* ===== Light theme overrides ===== */
     body:not(.dark-theme) {
-      --bg: #f4f6fb;
+      --bg: #eef2f8;
       --panel: #ffffff;
-      --panel-2: #f0f3fa;
-      --line: #d8dee9;
+      --panel-2: #f5f7fc;
+      --line: #d5dbe8;
       --text: #152033;
-      --muted: #5b6b86;
+      --muted: #5c6b86;
       --primary: #3b6cff;
       --primary-2: #6b4dff;
-      --success: #1f9d6a;
-      --warning: #b8860b;
+      --success: #0f9f6e;
+      --warning: #c48a00;
       --danger: #d6455d;
-      --shadow: 0 12px 36px rgba(21, 32, 51, 0.08);
-    }
-    body:not(.dark-theme) {
+      --shadow: 0 10px 30px rgba(21, 32, 51, 0.07);
+      --card: #ffffff;
+      --surface: #ffffff;
+      --surface-2: #f0f3fa;
+      --fg: #152033;
+      --accent: #3b6cff;
+      --border: #d5dbe8;
       background:
-        radial-gradient(circle at 15% 10%, rgba(59,108,255,.08), transparent 28%),
-        radial-gradient(circle at 85% 5%, rgba(107,77,255,.06), transparent 30%),
+        radial-gradient(circle at 15% 10%, rgba(59,108,255,.07), transparent 28%),
+        radial-gradient(circle at 85% 5%, rgba(107,77,255,.05), transparent 30%),
         var(--bg);
       color: var(--text);
     }
     body:not(.dark-theme) .card {
-      background: linear-gradient(180deg, #ffffff, #f7f9fc);
+      background: #ffffff;
       border-color: var(--line);
+      box-shadow: var(--shadow);
     }
     body:not(.dark-theme) .eyebrow {
       color: #3b6cff;
       background: rgba(59,108,255,.08);
-      border-color: rgba(59,108,255,.2);
+      border-color: rgba(59,108,255,.22);
     }
-    body.dark-theme {
-      /* keep existing :root dark values as-is when class present */
+    body:not(.dark-theme) input[type=number],
+    body:not(.dark-theme) input[type=text],
+    body:not(.dark-theme) select,
+    body:not(.dark-theme) textarea {
+      background: #f3f6fc !important;
+      color: var(--text) !important;
+      border-color: var(--line) !important;
+    }
+    body:not(.dark-theme) input[type=number]::placeholder,
+    body:not(.dark-theme) input[type=text]::placeholder {
+      color: #8a97b0;
+    }
+    body:not(.dark-theme) .metric,
+    body:not(.dark-theme) .formula,
+    body:not(.dark-theme) .decision-banner {
+      background: #1e2a44 !important;
+      color: #ecf2ff !important;
+      border-color: #2a3a5c !important;
+    }
+    body:not(.dark-theme) .metric strong,
+    body:not(.dark-theme) .metric b {
+      color: #ffffff;
+    }
+    body:not(.dark-theme) th {
+      background: #1e2a44 !important;
+      color: #ecf2ff !important;
+    }
+    body:not(.dark-theme) td {
+      background: #ffffff;
+      color: var(--text);
+      border-color: var(--line);
+    }
+    body:not(.dark-theme) table {
+      border-color: var(--line);
+    }
+    body:not(.dark-theme) tr:nth-child(even) td {
+      background: #f7f9fc;
+    }
+    body:not(.dark-theme) .cost-row,
+    body:not(.dark-theme) .cost-row .cost-name,
+    body:not(.dark-theme) .cost-row .cost-value {
+      background: #f3f6fc !important;
+      color: var(--text) !important;
+      border-color: var(--line) !important;
+    }
+    body:not(.dark-theme) .cost-summary-card,
+    body:not(.dark-theme) .cost-breakdown .cost-item {
+      background: #f3f6fc !important;
+      color: var(--text) !important;
+      border-color: var(--line) !important;
+    }
+    body:not(.dark-theme) .cost-summary-card.featured {
+      background: linear-gradient(135deg, #3b6cff, #6b4dff) !important;
+      color: #fff !important;
+    }
+    body:not(.dark-theme) .chart-wrap {
+      background: #f7f9fc !important;
+      border-color: var(--line) !important;
+    }
+    body:not(.dark-theme) .tip {
+      background: #eef3ff !important;
+      color: #3a4a6b !important;
+      border-color: #c9d6f5 !important;
+    }
+    body:not(.dark-theme) .btn.secondary,
+    body:not(.dark-theme) button.secondary {
+      background: #ffffff !important;
+      color: var(--text) !important;
+      border-color: var(--line) !important;
+    }
+    body:not(.dark-theme) .field label,
+    body:not(.dark-theme) .sub,
+    body:not(.dark-theme) .lead {
+      color: var(--muted);
+    }
+    body:not(.dark-theme) .slider-wrap input[type=range] {
+      accent-color: var(--primary);
+    }
+
+
+    body:not(.dark-theme) .cost-count {
+      color: #5c6b86 !important;
+      background: #e8eef8 !important;
+      border-color: #d0d8e8 !important;
+    }
+    body:not(.dark-theme) .cost-row {
+      background: #f5f7fc !important;
+      border-color: var(--line) !important;
+      box-shadow: none !important;
+    }
+    body:not(.dark-theme) .cost-row:hover {
+      border-color: #b8c4dc !important;
+      box-shadow: 0 4px 14px rgba(21,32,51,.06) !important;
+    }
+    body:not(.dark-theme) .cost-row::before {
+      background: #e8eef8 !important;
+      border-color: #d0d8e8 !important;
+      color: #5c6b86 !important;
+      box-shadow: none !important;
+    }
+    body:not(.dark-theme) .cost-row .remove-cost {
+      color: #5c6b86 !important;
+      background: #ffffff !important;
+      border-color: var(--line) !important;
+    }
+    body:not(.dark-theme) .cost-list-head {
+      color: #7a879e !important;
+    }
+    body:not(.dark-theme) .section-kicker {
+      color: #3b6cff !important;
+    }
+    body:not(.dark-theme) .cost-breakdown .cost-item .value {
+      color: var(--text) !important;
+    }
+    body:not(.dark-theme) .metric .k {
+      color: #9cadcf !important;
+    }
+    body:not(.dark-theme) button:not(.primary):not(.theme-in-drawer):not(.menu-fab):not(.drawer-close) {
+      background: #ffffff;
+      color: var(--text);
+      border-color: var(--line);
+    }
+    body:not(.dark-theme) .menu-fab {
+      background: #ffffff;
+      color: var(--text);
+      border-color: var(--line);
     }
 
   </style>
